@@ -1,0 +1,13 @@
+# Shared PVC for Loki and MinIO data (namespace: logging)
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: logging-storage-pvc
+  namespace: logging
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: openebs-hostpath
+  resources:
+    requests:
+      storage: 7Gi

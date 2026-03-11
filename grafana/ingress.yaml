@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: grafana-ingress
+  namespace: logging
+spec:
+  ingressClassName: traefik
+  tls:
+  - hosts:
+    - log.pirago.work
+    secretName: tls
+  rules:
+    - host: log.pirago.work
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: grafana
+                port:
+                  number: 3000

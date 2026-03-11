@@ -1,0 +1,12 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: promtail-binding
+subjects:
+  - kind: ServiceAccount
+    name: promtail-sa
+    namespace: logging
+roleRef:
+  kind: ClusterRole
+  name: promtail-role
+  apiGroup: rbac.authorization.k8s.io

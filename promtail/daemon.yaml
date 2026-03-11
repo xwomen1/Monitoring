@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: promtail
+  namespace: logging
+  labels:
+    app: promtail
+spec:
+  selector:
+    matchLabels:
+      app: promtail
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: promtail
+    spec:
+      serviceAccountName: promtail-sa
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: promtail
+          image: grafana/promtail:latest
+          imagePullPolicy: Always
+          args:
+            - -config.file=/etc/promtail/config.yaml
+          resources:
+            limits:
+              cpu: 200m
+              memory: 256Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+          securityContext:
+            privileged: true
+            runAsUser: 0
+          volumeMounts:
+            - name: logs
+              mountPath: /var/log/pods
+              readOnly: true
+            - name: config
+              mountPath: /etc/promtail
+      volumes:
+        - name: logs
+          hostPath:
+            path: /var/log/pods
+        - name: config
+          configMap:
+            name: promtail-config
+            defaultMode: 420

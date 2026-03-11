@@ -1,0 +1,98 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: logging
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+      evaluation_interval: 15s
+
+    scrape_configs:
+      - job_name: prometheus
+        static_configs:
+          - targets: ["localhost:9090"]
+
+      - job_name: node-exporter
+        kubernetes_sd_configs:
+          - role: endpoints
+            namespaces:
+              names: ["logging"]
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_service_label_app]
+            action: keep
+            regex: node-exporter
+          - source_labels: [__meta_kubernetes_pod_node_name]
+            target_label: node
+          - source_labels: [__meta_kubernetes_pod_node_name]
+            target_label: instance
+          - replacement: /metrics
+            target_label: __metrics_path__
+
+      - job_name: kube-state-metrics
+        static_configs:
+          - targets: ["kube-state-metrics.logging.svc.cluster.local:8080"]
+
+      - job_name: mysql-dbaas
+        static_configs:
+          - targets: ["mysql-exporter.logging.svc.cluster.local:9104"]
+            labels:
+              instance: "192.168.5.40:3306"
+              env: dbaas
+
+      - job_name: mssql-dbaas
+        static_configs:
+          - targets: ["mssql-exporter.logging.svc.cluster.local:4000"]
+            labels:
+              instance: "192.168.5.40:1433"
+              env: dbaas
+
+      - job_name: redis-dbaas
+        static_configs:
+          - targets: ["redis-exporter.logging.svc.cluster.local:9121"]
+            labels:
+              instance: "192.168.5.40:6379"
+              env: dbaas
+
+      - job_name: kubelet
+        scheme: https
+        tls_config:
+          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+          insecure_skip_verify: true
+        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+        kubernetes_sd_configs:
+          - role: node
+        relabel_configs:
+          - action: replace
+            source_labels: [__meta_kubernetes_node_address_InternalIP]
+            target_label: __address__
+            replacement: ${1}:10250
+          - action: replace
+            source_labels: [__meta_kubernetes_node_name]
+            target_label: node
+          - replacement: /metrics
+            target_label: __metrics_path__
+        metric_relabel_configs:
+          - source_labels: [__name__]
+            regex: container_.*
+            action: drop
+
+      - job_name: cadvisor
+        scheme: https
+        tls_config:
+          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+          insecure_skip_verify: true
+        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+        kubernetes_sd_configs:
+          - role: node
+        relabel_configs:
+          - action: replace
+            source_labels: [__meta_kubernetes_node_address_InternalIP]
+            target_label: __address__
+            replacement: ${1}:10250
+          - action: replace
+            source_labels: [__meta_kubernetes_node_name]
+            target_label: node
+          - replacement: /metrics/cadvisor
+            target_label: __metrics_path__

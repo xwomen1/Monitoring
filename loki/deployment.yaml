@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loki
+  namespace: logging
+  labels:
+    app: loki
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: loki
+  template:
+    metadata:
+      labels:
+        app: loki
+    spec:
+      securityContext:
+        fsGroup: 10001
+      initContainers:
+        - name: fix-permissions
+          image: busybox:latest
+          command: ["sh", "-c", "chown -R 10001:10001 /loki && chmod -R 775 /loki"]
+          volumeMounts:
+            - name: loki-data
+              mountPath: /loki
+      containers:
+        - name: loki
+          image: grafana/loki:3.3.0
+          args:
+            - "-config.file=/etc/loki/local-config.yaml"
+          ports:
+            - containerPort: 3100
+          env:
+            - name: MINIO_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: logging-secrets
+                  key: MINIO_ROOT_PASSWORD
+          securityContext:
+            runAsUser: 10001
+            runAsGroup: 10001
+          volumeMounts:
+            - name: loki-data
+              mountPath: /loki
+              subPath: loki
+            - name: loki-conf
+              mountPath: /etc/loki
+      volumes:
+        - name: loki-data
+          persistentVolumeClaim:
+            claimName: logging-storage-pvc
+        - name: loki-conf
+          configMap:
+            name: loki-config
+            defaultMode: 420

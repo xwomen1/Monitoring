@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mssql-exporter
+  namespace: logging
+  labels:
+    app: mssql-exporter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mssql-exporter
+  template:
+    metadata:
+      labels:
+        app: mssql-exporter
+    spec:
+      containers:
+        - name: mssql-exporter
+          image: awaragi/prometheus-mssql-exporter:latest
+          env:
+            - name: SERVER
+              value: "192.168.5.40"
+            - name: PORT
+              value: "1433"
+            - name: USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: mssql-exporter-auth
+                  key: USERNAME
+            - name: PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mssql-exporter-auth
+                  key: PASSWORD
+            # Nếu SQL Server dùng TLS self-signed có thể cần:
+            # - name: TRUST_SERVER_CERTIFICATE
+            #   value: "true"
+          ports:
+            - containerPort: 4000
+              name: metrics
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi

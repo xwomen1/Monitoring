@@ -1,0 +1,353 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboards-json
+  namespace: logging
+  labels:
+    app: grafana
+data:
+  monitoring-overview.json: |
+    {
+      "annotations": {"list": []},
+      "editable": true,
+      "fiscalYearStartMonth": 0,
+      "graphTooltip": 1,
+      "id": null,
+      "links": [],
+      "liveNow": false,
+      "panels": [
+        {
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 2, "w": 24, "x": 0, "y": 0},
+          "id": 100,
+          "options": {"content": "## Nodes (K3s)", "mode": "markdown"},
+          "title": "",
+          "type": "text"
+        },
+        {
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "red", "value": null}, {"color": "green", "value": 1}]}, "unit": "short"}, "overrides": []},
+          "gridPos": {"h": 3, "w": 4, "x": 0, "y": 2},
+          "id": 101,
+          "options": {"colorMode": "value", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto"},
+          "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus"}, "expr": "count(up{job=\"node-exporter\"} == 1)", "refId": "A"}],
+          "title": "Nodes up",
+          "type": "stat"
+        },
+        {
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "red", "value": null}, {"color": "green", "value": 1}]}, "unit": "short"}, "overrides": []},
+          "gridPos": {"h": 3, "w": 4, "x": 4, "y": 2},
+          "id": 102,
+          "options": {"colorMode": "value", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto"},
+          "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus"}, "expr": "mysql_up", "refId": "A"}],
+          "title": "MySQL (192.168.5.40)",
+          "type": "stat"
+        },
+        {
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "red", "value": null}, {"color": "green", "value": 1}]}, "unit": "short"}, "overrides": []},
+          "gridPos": {"h": 3, "w": 4, "x": 8, "y": 2},
+          "id": 103,
+          "options": {"colorMode": "value", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto"},
+          "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus"}, "expr": "redis_up", "refId": "A"}],
+          "title": "Redis (192.168.5.40)",
+          "type": "stat"
+        },
+        {
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "mappings": [{"options": {"0": {"color": "red", "index": 0, "text": "DOWN"}, "1": {"color": "green", "index": 1, "text": "UP"}}, "type": "value"}], "thresholds": {"mode": "absolute", "steps": [{"color": "red", "value": null}, {"color": "green", "value": 1}]}, "unit": "short"}, "overrides": []},
+          "gridPos": {"h": 3, "w": 4, "x": 12, "y": 2},
+          "id": 104,
+          "options": {"colorMode": "value", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto"},
+          "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus"}, "expr": "up{job=\"mssql-dbaas\"}", "refId": "A"}],
+          "title": "SQL Server (192.168.5.40)",
+          "type": "stat"
+        },
+        {
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "mappings": [], "max": 100, "min": 0, "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "yellow", "value": 70}, {"color": "red", "value": 90}]}, "unit": "percent"}, "overrides": []},
+          "gridPos": {"h": 6, "w": 12, "x": 0, "y": 5},
+          "id": 105,
+          "options": {"legend": {"displayMode": "list", "placement": "bottom", "showLegend": true}},
+          "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus"}, "expr": "100 - (avg by (instance) (irate(node_cpu_seconds_total{job=\"node-exporter\",mode=\"idle\"}[5m])) * 100)", "legendFormat": "{{instance}}", "refId": "A"}],
+          "title": "Node CPU %",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "mappings": [], "max": 100, "min": 0, "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "yellow", "value": 70}, {"color": "red", "value": 90}]}, "unit": "percent"}, "overrides": []},
+          "gridPos": {"h": 6, "w": 12, "x": 12, "y": 5},
+          "id": 106,
+          "options": {"legend": {"displayMode": "list", "placement": "bottom", "showLegend": true}},
+          "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus"}, "expr": "(1 - (node_memory_MemAvailable_bytes{job=\"node-exporter\"} / node_memory_MemTotal_bytes{job=\"node-exporter\"})) * 100", "legendFormat": "{{instance}}", "refId": "A"}],
+          "title": "Node memory %",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}, "unit": "short"}, "overrides": []},
+          "gridPos": {"h": 6, "w": 8, "x": 0, "y": 11},
+          "id": 107,
+          "options": {"legend": {"displayMode": "list", "placement": "bottom", "showLegend": true}},
+          "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus"}, "expr": "mysql_global_status_threads_connected", "legendFormat": "MySQL", "refId": "A"}],
+          "title": "MySQL connections",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}, "unit": "short"}, "overrides": []},
+          "gridPos": {"h": 6, "w": 8, "x": 8, "y": 11},
+          "id": 108,
+          "options": {"legend": {"displayMode": "list", "placement": "bottom", "showLegend": true}},
+          "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus"}, "expr": "redis_connected_clients", "legendFormat": "Redis", "refId": "A"}],
+          "title": "Redis connected clients",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}, "unit": "bytes"}, "overrides": []},
+          "gridPos": {"h": 6, "w": 8, "x": 16, "y": 11},
+          "id": 109,
+          "options": {"legend": {"displayMode": "list", "placement": "bottom", "showLegend": true}},
+          "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus"}, "expr": "redis_memory_used_bytes", "legendFormat": "Redis", "refId": "A"}],
+          "title": "Redis memory used",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}, "unit": "short"}, "overrides": []},
+          "gridPos": {"h": 6, "w": 12, "x": 0, "y": 17},
+          "id": 110,
+          "options": {"legend": {"displayMode": "list", "placement": "bottom", "showLegend": true}},
+          "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus"}, "expr": "mssql_client_connections", "legendFormat": "MSSQL", "refId": "A"}],
+          "title": "SQL Server client connections",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}, "unit": "short"}, "overrides": []},
+          "gridPos": {"h": 6, "w": 12, "x": 12, "y": 17},
+          "id": 111,
+          "options": {"legend": {"displayMode": "list", "placement": "bottom", "showLegend": true}},
+          "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus"}, "expr": "rate(mssql_batch_requests[5m])", "legendFormat": "MSSQL", "refId": "A"}],
+          "title": "SQL Server batch requests/s",
+          "type": "timeseries"
+        }
+      ],
+      "refresh": "30s",
+      "schemaVersion": 38,
+      "style": "dark",
+      "tags": ["monitoring", "home"],
+      "templating": {"list": []},
+      "time": {"from": "now-6h", "to": "now"},
+      "timepicker": {},
+      "timezone": "browser",
+      "title": "Monitoring Overview",
+      "uid": "monitoring-overview",
+      "version": 1
+    }
+  mysql-overview.json: |
+    {
+      "annotations": {"list": []},
+      "editable": true,
+      "fiscalYearStartMonth": 0,
+      "graphTooltip": 1,
+      "id": null,
+      "links": [],
+      "liveNow": false,
+      "panels": [
+        {"datasource": {"type": "prometheus", "uid": "prometheus"}, "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "mappings": [{"options": {"0": {"color": "red", "text": "DOWN"}, "1": {"color": "green", "text": "UP"}}, "type": "value"}], "thresholds": {"mode": "absolute", "steps": [{"color": "red", "value": null}, {"color": "green", "value": 1}]}, "unit": "short"}, "overrides": []}, "gridPos": {"h": 3, "w": 4, "x": 0, "y": 0}, "id": 1, "options": {"colorMode": "value", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto"}, "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus"}, "expr": "mysql_up", "refId": "A"}], "title": "MySQL up", "type": "stat"},
+        {"datasource": {"type": "prometheus", "uid": "prometheus"}, "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}, "unit": "short"}, "overrides": []}, "gridPos": {"h": 6, "w": 12, "x": 0, "y": 3}, "id": 2, "options": {"legend": {"displayMode": "list", "placement": "bottom", "showLegend": true}}, "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus"}, "expr": "mysql_global_status_threads_connected", "legendFormat": "connected", "refId": "A"}], "title": "Threads connected", "type": "timeseries"},
+        {"datasource": {"type": "prometheus", "uid": "prometheus"}, "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}, "unit": "short"}, "overrides": []}, "gridPos": {"h": 6, "w": 12, "x": 12, "y": 3}, "id": 3, "options": {"legend": {"displayMode": "list", "placement": "bottom", "showLegend": true}}, "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus"}, "expr": "mysql_global_status_threads_running", "legendFormat": "running", "refId": "A"}], "title": "Threads running", "type": "timeseries"},
+        {"datasource": {"type": "prometheus", "uid": "prometheus"}, "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}, "unit": "ops"}, "overrides": []}, "gridPos": {"h": 6, "w": 12, "x": 0, "y": 9}, "id": 4, "options": {"legend": {"displayMode": "list", "placement": "bottom", "showLegend": true}}, "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus"}, "expr": "rate(mysql_global_status_queries[5m])", "legendFormat": "queries/s", "refId": "A"}], "title": "Queries per second", "type": "timeseries"},
+        {"datasource": {"type": "prometheus", "uid": "prometheus"}, "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}, "unit": "short"}, "overrides": []}, "gridPos": {"h": 6, "w": 12, "x": 12, "y": 9}, "id": 5, "options": {"legend": {"displayMode": "list", "placement": "bottom", "showLegend": true}}, "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus"}, "expr": "mysql_global_status_slow_queries", "legendFormat": "slow", "refId": "A"}], "title": "Slow queries (total)", "type": "timeseries"},
+        {"datasource": {"type": "prometheus", "uid": "prometheus"}, "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}, "unit": "bytes"}, "overrides": []}, "gridPos": {"h": 6, "w": 12, "x": 0, "y": 15}, "id": 6, "options": {"legend": {"displayMode": "list", "placement": "bottom", "showLegend": true}}, "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus"}, "expr": "mysql_global_status_innodb_buffer_pool_pages_data * 16384", "legendFormat": "buffer pool data", "refId": "A"}], "title": "InnoDB buffer pool (bytes)", "type": "timeseries"},
+        {"datasource": {"type": "prometheus", "uid": "prometheus"}, "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}, "unit": "short"}, "overrides": []}, "gridPos": {"h": 6, "w": 12, "x": 12, "y": 15}, "id": 7, "options": {"legend": {"displayMode": "list", "placement": "bottom", "showLegend": true}}, "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus"}, "expr": "mysql_global_status_connection_errors_total", "legendFormat": "connection errors", "refId": "A"}], "title": "Connection errors (total)", "type": "timeseries"}
+      ],
+      "refresh": "30s",
+      "schemaVersion": 38,
+      "style": "dark",
+      "tags": ["monitoring", "mysql"],
+      "templating": {"list": []},
+      "time": {"from": "now-6h", "to": "now"},
+      "timepicker": {},
+      "timezone": "browser",
+      "title": "MySQL Overview (192.168.5.40)",
+      "uid": "mysql-overview",
+      "version": 1
+    }
+  redis-overview.json: |
+    {
+      "annotations": {"list": []},
+      "editable": true,
+      "fiscalYearStartMonth": 0,
+      "graphTooltip": 1,
+      "id": null,
+      "links": [],
+      "liveNow": false,
+      "panels": [
+        {"datasource": {"type": "prometheus", "uid": "prometheus"}, "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "mappings": [{"options": {"0": {"color": "red", "text": "DOWN"}, "1": {"color": "green", "text": "UP"}}, "type": "value"}], "thresholds": {"mode": "absolute", "steps": [{"color": "red", "value": null}, {"color": "green", "value": 1}]}, "unit": "short"}, "overrides": []}, "gridPos": {"h": 3, "w": 4, "x": 0, "y": 0}, "id": 1, "options": {"colorMode": "value", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto"}, "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus"}, "expr": "redis_up", "refId": "A"}], "title": "Redis up", "type": "stat"},
+        {"datasource": {"type": "prometheus", "uid": "prometheus"}, "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}, "unit": "short"}, "overrides": []}, "gridPos": {"h": 6, "w": 12, "x": 0, "y": 3}, "id": 2, "options": {"legend": {"displayMode": "list", "placement": "bottom", "showLegend": true}}, "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus"}, "expr": "redis_connected_clients", "legendFormat": "clients", "refId": "A"}], "title": "Connected clients", "type": "timeseries"},
+        {"datasource": {"type": "prometheus", "uid": "prometheus"}, "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}, "unit": "bytes"}, "overrides": []}, "gridPos": {"h": 6, "w": 12, "x": 12, "y": 3}, "id": 3, "options": {"legend": {"displayMode": "list", "placement": "bottom", "showLegend": true}}, "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus"}, "expr": "redis_memory_used_bytes", "legendFormat": "used", "refId": "A"}], "title": "Memory used", "type": "timeseries"},
+        {"datasource": {"type": "prometheus", "uid": "prometheus"}, "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}, "unit": "short"}, "overrides": []}, "gridPos": {"h": 6, "w": 12, "x": 0, "y": 9}, "id": 4, "options": {"legend": {"displayMode": "list", "placement": "bottom", "showLegend": true}}, "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus"}, "expr": "rate(redis_commands_processed_total[5m])", "legendFormat": "commands/s", "refId": "A"}], "title": "Commands processed per second", "type": "timeseries"},
+        {"datasource": {"type": "prometheus", "uid": "prometheus"}, "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}, "unit": "short"}, "overrides": []}, "gridPos": {"h": 6, "w": 12, "x": 12, "y": 9}, "id": 5, "options": {"legend": {"displayMode": "list", "placement": "bottom", "showLegend": true}}, "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus"}, "expr": "redis_keyspace_hits_total", "legendFormat": "hits", "refId": "A"}, {"datasource": {"type": "prometheus", "uid": "prometheus"}, "expr": "redis_keyspace_misses_total", "legendFormat": "misses", "refId": "B"}], "title": "Keyspace hits / misses", "type": "timeseries"},
+        {"datasource": {"type": "prometheus", "uid": "prometheus"}, "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}, "unit": "short"}, "overrides": []}, "gridPos": {"h": 6, "w": 12, "x": 0, "y": 15}, "id": 6, "options": {"legend": {"displayMode": "list", "placement": "bottom", "showLegend": true}}, "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus"}, "expr": "redis_connected_slaves", "legendFormat": "slaves", "refId": "A"}], "title": "Connected slaves", "type": "timeseries"},
+        {"datasource": {"type": "prometheus", "uid": "prometheus"}, "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}, "unit": "short"}, "overrides": []}, "gridPos": {"h": 6, "w": 12, "x": 12, "y": 15}, "id": 7, "options": {"legend": {"displayMode": "list", "placement": "bottom", "showLegend": true}}, "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus"}, "expr": "redis_blocked_clients", "legendFormat": "blocked", "refId": "A"}], "title": "Blocked clients", "type": "timeseries"}
+      ],
+      "refresh": "30s",
+      "schemaVersion": 38,
+      "style": "dark",
+      "tags": ["monitoring", "redis"],
+      "templating": {"list": []},
+      "time": {"from": "now-6h", "to": "now"},
+      "timepicker": {},
+      "timezone": "browser",
+      "title": "Redis Overview (192.168.5.40)",
+      "uid": "redis-overview",
+      "version": 1
+    }
+  mssql-overview.json: |
+    {
+      "annotations": {"list": []},
+      "editable": true,
+      "fiscalYearStartMonth": 0,
+      "graphTooltip": 1,
+      "id": null,
+      "links": [],
+      "liveNow": false,
+      "panels": [
+        {"datasource": {"type": "prometheus", "uid": "prometheus"}, "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "mappings": [{"options": {"0": {"color": "red", "text": "DOWN"}, "1": {"color": "green", "text": "UP"}}, "type": "value"}], "thresholds": {"mode": "absolute", "steps": [{"color": "red", "value": null}, {"color": "green", "value": 1}]}, "unit": "short"}, "overrides": []}, "gridPos": {"h": 3, "w": 4, "x": 0, "y": 0}, "id": 1, "options": {"colorMode": "value", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto"}, "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus"}, "expr": "up{job=\"mssql-dbaas\"}", "refId": "A"}], "title": "SQL Server up", "type": "stat"},
+        {"datasource": {"type": "prometheus", "uid": "prometheus"}, "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}, "unit": "short"}, "overrides": []}, "gridPos": {"h": 6, "w": 12, "x": 0, "y": 3}, "id": 2, "options": {"legend": {"displayMode": "list", "placement": "bottom", "showLegend": true}}, "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus"}, "expr": "mssql_client_connections", "legendFormat": "{{instance}}", "refId": "A"}], "title": "Client connections", "type": "timeseries"},
+        {"datasource": {"type": "prometheus", "uid": "prometheus"}, "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}, "unit": "ops"}, "overrides": []}, "gridPos": {"h": 6, "w": 12, "x": 12, "y": 3}, "id": 3, "options": {"legend": {"displayMode": "list", "placement": "bottom", "showLegend": true}}, "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus"}, "expr": "rate(mssql_batch_requests[5m])", "legendFormat": "batch/s", "refId": "A"}], "title": "Batch requests per second", "type": "timeseries"},
+        {"datasource": {"type": "prometheus", "uid": "prometheus"}, "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}, "unit": "percent"}, "overrides": []}, "gridPos": {"h": 6, "w": 12, "x": 0, "y": 9}, "id": 4, "options": {"legend": {"displayMode": "list", "placement": "bottom", "showLegend": true}}, "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus"}, "expr": "mssql_memory_utilization_percentage", "legendFormat": "memory %", "refId": "A"}], "title": "Memory utilization %", "type": "timeseries"},
+        {"datasource": {"type": "prometheus", "uid": "prometheus"}, "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}, "unit": "s"}, "overrides": []}, "gridPos": {"h": 6, "w": 12, "x": 12, "y": 9}, "id": 5, "options": {"legend": {"displayMode": "list", "placement": "bottom", "showLegend": true}}, "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus"}, "expr": "mssql_page_life_expectancy", "legendFormat": "page life", "refId": "A"}], "title": "Page life expectancy (s)", "type": "timeseries"},
+        {"datasource": {"type": "prometheus", "uid": "prometheus"}, "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}, "unit": "short"}, "overrides": []}, "gridPos": {"h": 6, "w": 12, "x": 0, "y": 15}, "id": 6, "options": {"legend": {"displayMode": "list", "placement": "bottom", "showLegend": true}}, "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus"}, "expr": "rate(mssql_page_read_total[5m])", "legendFormat": "reads/s", "refId": "A"}], "title": "Page reads per second", "type": "timeseries"},
+        {"datasource": {"type": "prometheus", "uid": "prometheus"}, "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}, "unit": "short"}, "overrides": []}, "gridPos": {"h": 6, "w": 12, "x": 12, "y": 15}, "id": 7, "options": {"legend": {"displayMode": "list", "placement": "bottom", "showLegend": true}}, "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus"}, "expr": "rate(mssql_page_write_total[5m])", "legendFormat": "writes/s", "refId": "A"}], "title": "Page writes per second", "type": "timeseries"},
+        {"datasource": {"type": "prometheus", "uid": "prometheus"}, "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}, "unit": "short"}, "overrides": []}, "gridPos": {"h": 6, "w": 12, "x": 0, "y": 21}, "id": 8, "options": {"legend": {"displayMode": "list", "placement": "bottom", "showLegend": true}}, "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus"}, "expr": "rate(mssql_deadlocks[5m])", "legendFormat": "deadlocks/s", "refId": "A"}], "title": "Deadlocks per second", "type": "timeseries"},
+        {"datasource": {"type": "prometheus", "uid": "prometheus"}, "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}, "unit": "short"}, "overrides": []}, "gridPos": {"h": 6, "w": 12, "x": 12, "y": 21}, "id": 9, "options": {"legend": {"displayMode": "list", "placement": "bottom", "showLegend": true}}, "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus"}, "expr": "rate(mssql_user_errors[5m])", "legendFormat": "user errors/s", "refId": "A"}], "title": "User errors per second", "type": "timeseries"}
+      ],
+      "refresh": "30s",
+      "schemaVersion": 38,
+      "style": "dark",
+      "tags": ["monitoring", "mssql"],
+      "templating": {"list": []},
+      "time": {"from": "now-6h", "to": "now"},
+      "timepicker": {},
+      "timezone": "browser",
+      "title": "SQL Server Overview (192.168.5.40)",
+      "uid": "mssql-overview",
+      "version": 1
+    }
+  node-overview.json: |
+    {
+      "annotations": {"list": []},
+      "editable": true,
+      "fiscalYearStartMonth": 0,
+      "graphTooltip": 1,
+      "id": null,
+      "links": [],
+      "liveNow": false,
+      "panels": [
+        {
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}, "unit": "short"},
+            "overrides": []},
+          "gridPos": {"h": 4, "w": 6, "x": 0, "y": 0},
+          "id": 2,
+          "options": {"colorMode": "value", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto"},
+          "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus"}, "expr": "count(up{job=\"node-exporter\"} == 1)", "refId": "A"}],
+          "title": "Nodes up",
+          "type": "stat"
+        },
+        {
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "mappings": [], "max": 100, "min": 0, "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "yellow", "value": 70}, {"color": "red", "value": 90}]}, "unit": "percent"},
+            "overrides": []},
+          "gridPos": {"h": 8, "w": 12, "x": 0, "y": 4},
+          "id": 3,
+          "options": {"legend": {"displayMode": "list", "placement": "bottom", "showLegend": true}},
+          "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus"}, "expr": "100 - (avg by (instance) (irate(node_cpu_seconds_total{job=\"node-exporter\",mode=\"idle\"}[5m])) * 100)", "legendFormat": "{{instance}}", "refId": "A"}],
+          "title": "Node CPU usage %",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "mappings": [], "max": 100, "min": 0, "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "yellow", "value": 70}, {"color": "red", "value": 90}]}, "unit": "percent"},
+            "overrides": []},
+          "gridPos": {"h": 8, "w": 12, "x": 12, "y": 4},
+          "id": 4,
+          "options": {"legend": {"displayMode": "list", "placement": "bottom", "showLegend": true}},
+          "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus"}, "expr": "(1 - (node_memory_MemAvailable_bytes{job=\"node-exporter\"} / node_memory_MemTotal_bytes{job=\"node-exporter\"})) * 100", "legendFormat": "{{instance}}", "refId": "A"}],
+          "title": "Node memory usage %",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "mappings": [], "max": 100, "min": 0, "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "yellow", "value": 70}, {"color": "red", "value": 90}]}, "unit": "percent"},
+            "overrides": []},
+          "gridPos": {"h": 8, "w": 12, "x": 0, "y": 12},
+          "id": 5,
+          "options": {"legend": {"displayMode": "list", "placement": "bottom", "showLegend": true}},
+          "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus"}, "expr": "(1 - (node_filesystem_avail_bytes{job=\"node-exporter\",mountpoint=\"/\"} / node_filesystem_size_bytes{job=\"node-exporter\",mountpoint=\"/\"})) * 100", "legendFormat": "{{instance}}", "refId": "A"}],
+          "title": "Node disk usage % (root)",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}, "unit": "short"},
+            "overrides": []},
+          "gridPos": {"h": 8, "w": 12, "x": 12, "y": 12},
+          "id": 6,
+          "options": {"legend": {"displayMode": "list", "placement": "bottom", "showLegend": true}},
+          "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus"}, "expr": "node_filesystem_size_bytes{job=\"node-exporter\",mountpoint=\"/\"} - node_filesystem_avail_bytes{job=\"node-exporter\",mountpoint=\"/\"}", "legendFormat": "{{instance}}", "refId": "A"}],
+          "title": "Node disk used (bytes)",
+          "type": "timeseries"
+        }
+      ],
+      "refresh": "30s",
+      "schemaVersion": 38,
+      "style": "dark",
+      "tags": ["monitoring", "nodes"],
+      "templating": {"list": []},
+      "time": {"from": "now-6h", "to": "now"},
+      "timepicker": {},
+      "timezone": "browser",
+      "title": "Node Overview",
+      "uid": "node-overview",
+      "version": 1
+    }
+  monitoring-readme.json: |
+    {
+      "annotations": {"list": []},
+      "editable": true,
+      "fiscalYearStartMonth": 0,
+      "graphTooltip": 0,
+      "id": null,
+      "links": [],
+      "liveNow": false,
+      "panels": [
+        {
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 4, "w": 24, "x": 0, "y": 0},
+          "id": 1,
+          "options": {
+            "content": "## Monitoring dashboards\n\nPrometheus datasource is provisioned. Import more dashboards from Grafana.com:\n- **Node Exporter Full** (id: 1860) – node CPU, memory, disk, network\n- **Kubernetes / Compute Resources / Cluster** (id: 6417) – pod/container metrics\n- **Kubernetes / Persistent Volumes** (id: 14056) – PVC/disk",
+            "mode": "markdown"
+          },
+          "title": "Readme",
+          "type": "text"
+        }
+      ],
+      "refresh": "",
+      "schemaVersion": 38,
+      "style": "dark",
+      "tags": ["monitoring"],
+      "templating": {"list": []},
+      "time": {"from": "now-1h", "to": "now"},
+      "timepicker": {},
+      "timezone": "",
+      "title": "Monitoring - Import dashboards",
+      "uid": "monitoring-readme",
+      "version": 1
+    }
