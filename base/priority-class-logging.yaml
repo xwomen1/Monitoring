@@ -1,0 +1,8 @@
+# Ưu tiên cao cho stack logging — được schedule trước, ít bị evict khi node thiếu tài nguyên
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: logging-high
+value: 1000000
+globalDefault: false
+description: "Stack logging (Loki, Grafana, Prometheus, MinIO) ưu tiên lên trước các workload khác"

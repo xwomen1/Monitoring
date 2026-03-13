@@ -1,0 +1,68 @@
+# DaemonSet Promtail gửi log lên Grafana Cloud (cần secret promtail-grafana-cloud).
+# Giới hạn CPU/RAM thấp để không ảnh hưởng workload khác; chỉ giữ log 2h (config trong ConfigMap).
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: promtail
+  namespace: logging
+  labels:
+    app: promtail
+spec:
+  selector:
+    matchLabels:
+      app: promtail
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: promtail
+    spec:
+      serviceAccountName: promtail-sa
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: promtail
+          image: grafana/promtail:latest
+          imagePullPolicy: Always
+          args:
+            - -config.file=/etc/promtail/config.yaml
+            - -config.expand-env
+          env:
+            - name: GCL_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: promtail-grafana-cloud
+                  key: username
+          resources:
+            limits:
+              cpu: 100m
+              memory: 128Mi
+            requests:
+              cpu: 50m
+              memory: 64Mi
+          securityContext:
+            privileged: true
+            runAsUser: 0
+          volumeMounts:
+            - name: logs
+              mountPath: /var/log/pods
+              readOnly: true
+            - name: config
+              mountPath: /etc/promtail
+            - name: gc-auth
+              mountPath: /etc/promtail/gc
+              readOnly: true
+      volumes:
+        - name: logs
+          hostPath:
+            path: /var/log/pods
+        - name: config
+          configMap:
+            name: promtail-config
+            defaultMode: 420
+        - name: gc-auth
+          secret:
+            secretName: promtail-grafana-cloud
+            optional: false

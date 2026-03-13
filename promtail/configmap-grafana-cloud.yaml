@@ -1,0 +1,57 @@
+# Promtail gửi log lên Grafana Cloud (không cần Loki trong cluster)
+# Bước 1: Đăng ký https://grafana.com/products/cloud/ → tạo stack → Logs → lấy URL + User + API Key
+# Bước 2: Tạo secret (xem README hoặc chạy lệnh bên dưới)
+# Bước 3: kubectl apply -f promtail/configmap-grafana-cloud.yaml -n logging
+# Bước 4: Thêm volume secret vào DaemonSet promtail (đã có trong daemon-grafana-cloud.yaml)
+# Bước 5: Scale Loki về 0: kubectl scale deployment loki -n logging --replicas=0
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: promtail-config
+  namespace: logging
+  labels:
+    app: promtail
+data:
+  config.yaml: |
+    server:
+      http_listen_port: 9080
+
+    clients:
+      - url: https://logs-prod-XXX.grafana.net/loki/api/v1/push
+        basic_auth:
+          username: ${GCL_USERNAME}
+          password_file: /etc/promtail/gc/password
+
+    positions:
+      filename: /tmp/positions.yaml
+
+    scrape_configs:
+      - job_name: kubernetes-pods-direct
+        static_configs:
+          - targets:
+              - localhost
+            labels:
+              job: kubernetes-pods
+              __path__: /var/log/pods/*/*/*.log
+
+        pipeline_stages:
+          - cri: {}
+          # Chỉ gửi log 2 giờ gần nhất, bỏ qua log cũ → giảm tải Grafana Cloud và tài nguyên
+          - drop:
+              older_than: 2h
+              drop_counter_reason: "older_than_2h"
+          - regex:
+              expression: "/var/log/pods/(?P<project>[^_]+)_(?P<pod_full_name>[^_]+)_(?P<pod_uid>[^/]+)/.+"
+              source: filename
+          - regex:
+              expression: "(?P<app_clean>.*)-[a-z0-9]+-[a-z0-9]+"
+              source: pod_full_name
+          - template:
+              source: app
+              template: '{{ if .app_clean }}{{ .app_clean }}{{ else }}{{ .pod_full_name }}{{ end }}'
+          - labels:
+              project:
+              app
+          - match:
+              selector: '{project=~"logging|default"}'
+              action: keep

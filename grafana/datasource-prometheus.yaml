@@ -16,3 +16,13 @@ data:
         url: http://prometheus.logging.svc.cluster.local:9090
         isDefault: false
         editable: false
+  loki.yaml: |
+    apiVersion: 1
+    datasources:
+      - name: Loki
+        type: loki
+        uid: loki
+        access: proxy
+        url: http://loki.logging.svc.cluster.local:3100
+        isDefault: false
+        editable: false

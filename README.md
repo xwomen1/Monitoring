@@ -7,7 +7,9 @@ Stack: Grafana, Loki, Promtail, MinIO, Prometheus, node-exporter, kube-state-met
 ```
 log/
 ├── README.md
-├── base/                    
+├── apply-all.sh            # Script apply toàn bộ (hoặc --recreate)
+├── base/
+│   ├── namespace.yaml      # Namespace logging
 │   ├── secret.yaml         # logging-secrets (Grafana, MinIO password)
 │   └── pvc-logging-storage.yaml   # PVC 7Gi cho Loki + MinIO
 ├── minio/                   # Object storage (Loki backend)
@@ -61,14 +63,41 @@ log/
 
 **Lưu ý:** Các thư mục `loki/`, `minio/` ở root chứa manifest lite/alternate; có thể giữ để tham khảo hoặc xóa nếu không dùng.
 
-## Thứ tự apply (namespace `logging` đã có)
+## Loki + MinIO (bắt buộc khi deploy)
+
+- **Mật khẩu:** Loki lấy MinIO password từ secret `logging-secrets` (key `MINIO_ROOT_PASSWORD`) qua env `MINIO_PASSWORD`; config dùng `${MINIO_PASSWORD}` (cần args `-config.expand-env=true` trong deployment — đã có trong manifest).
+- **Bucket:** Sau khi MinIO chạy, tạo bucket `loki` (console MinIO hoặc `mc mb myminio/loki`).
+- **DNS:** Loki (ruler, compactor) gọi host `loki.minio.logging.svc.cluster.local` — phải thêm rewrite trong CoreDNS để host này trỏ về MinIO. Chi tiết: **`loki/coredns-rewrite-minio.md`**.
+
+Lỗi thường gặp và cách kiểm tra: **`MANIFEST-CHECK.md`**.
+
+## Apply toàn bộ (tạo lại namespace)
+
+Có sẵn script apply theo đúng thứ tự (chạy từ thư mục `log/`):
 
 ```bash
-# 1. Base
+chmod +x apply-all.sh
+./apply-all.sh
+```
+
+Để **xóa namespace `logging` rồi deploy lại từ đầu**:
+
+```bash
+./apply-all.sh --recreate
+```
+
+Script dùng `base/namespace.yaml` để tạo namespace, rồi apply lần lượt base → minio → loki → promtail → prometheus → node-exporter → kube-state-metrics → grafana → DB exporters. Sau khi chạy, nhớ tạo bucket `loki` và cấu hình CoreDNS rewrite (xem `MANIFEST-CHECK.md`, `loki/coredns-rewrite-minio.md`).
+
+## Thứ tự apply (khi apply tay, namespace `logging` đã có)
+
+```bash
+# 1. Base (namespace + secret + PVC)
 kubectl apply -f base/
 
 # 2. Storage & logging
 kubectl apply -f minio/
+# Đợi MinIO Running, tạo bucket loki (xem MANIFEST-CHECK.md)
+# Cấu hình CoreDNS rewrite (xem loki/coredns-rewrite-minio.md)
 kubectl apply -f loki/
 kubectl apply -f promtail/
 
