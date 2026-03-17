@@ -8,6 +8,12 @@
 
 A highly structured, **Kustomize**-ready observability stack for Kubernetes (K3s/K8s). It provides a complete monitoring and logging ecosystem tailored for production and home-lab deployments. This repository is sanitized and ready to act as a solid foundation for any Kubernetes log & monitoring stack.
 
+<br>
+<p align="center">
+  <img src="assets/demo.png" alt="Grafana Dashboard Demo" width="100%">
+</p>
+<br>
+
 ## ✨ Features
 
 - **Metrics Collection**: Prometheus, Node Exporter, Kube State Metrics.
