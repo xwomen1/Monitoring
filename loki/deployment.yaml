@@ -20,7 +20,6 @@ spec:
       initContainers:
         - name: fix-permissions
           image: busybox:latest
-          # Tạo sẵn subPath "loki" và thư mục con (index, index_cache) rồi chown — tránh "mkdir /loki/index_cache: permission denied"
           command: ["sh", "-c", "mkdir -p /loki/loki/index /loki/loki/index_cache && chown -R 10001:10001 /loki && chmod -R 775 /loki"]
           volumeMounts:
             - name: loki-data

@@ -20,7 +20,7 @@ spec:
         image: grafana/grafana:latest
         env:
         - name: GF_SERVER_ROOT_URL
-          value: https://log.pirago.work
+          value: https://log.ttldLinh.work
         - name: GF_SERVER_SERVE_FROM_SUB_PATH
           value: "true"
         - name: GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH

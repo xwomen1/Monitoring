@@ -38,21 +38,21 @@ data:
         static_configs:
           - targets: ["mysql-exporter.logging.svc.cluster.local:9104"]
             labels:
-              instance: "192.168.5.40:3306"
+              instance: "<YOUR_MYSQL_IP>:3306"
               env: dbaas
 
       - job_name: mssql-dbaas
         static_configs:
           - targets: ["mssql-exporter.logging.svc.cluster.local:4000"]
             labels:
-              instance: "192.168.5.40:1433"
+              instance: "<YOUR_MSSQL_IP>:1433"
               env: dbaas
 
       - job_name: redis-dbaas
         static_configs:
           - targets: ["redis-exporter.logging.svc.cluster.local:9121"]
             labels:
-              instance: "192.168.5.40:6379"
+              instance: "<YOUR_REDIS_IP>:6379"
               env: dbaas
 
       - job_name: kubelet

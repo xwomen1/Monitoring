@@ -8,6 +8,8 @@ data:
     auth_enabled: false
     server:
       http_listen_port: 3100
+    limits_config:
+      allow_structured_metadata: false
     common:
       instance_addr: 127.0.0.1
       path_prefix: /loki
@@ -16,8 +18,9 @@ data:
           endpoint: minio.logging.svc.cluster.local:9000
           bucketnames: loki
           access_key_id: minioadmin
-          secret_access_key: minioadmin
+          secret_access_key: ${MINIO_PASSWORD}
           insecure: true
+          s3forcepathstyle: true
       replication_factor: 1
       ring:
         kvstore:
@@ -32,6 +35,13 @@ data:
             prefix: index_
             period: 24h
     storage_config:
+      aws:
+        endpoint: minio.logging.svc.cluster.local:9000
+        bucketnames: loki
+        access_key_id: minioadmin
+        secret_access_key: ${MINIO_PASSWORD}
+        insecure: true
+        s3forcepathstyle: true
       tsdb_shipper:
         active_index_directory: /loki/index
         cache_location: /loki/index_cache

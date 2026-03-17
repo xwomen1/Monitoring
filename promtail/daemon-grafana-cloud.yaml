@@ -1,5 +1,3 @@
-# DaemonSet Promtail gửi log lên Grafana Cloud (cần secret promtail-grafana-cloud).
-# Giới hạn CPU/RAM thấp để không ảnh hưởng workload khác; chỉ giữ log 2h (config trong ConfigMap).
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:

@@ -1,144 +1,79 @@
-# Log & Monitoring Stack (K3s)
+# 🚀 Kubernetes Observability Stack (K3s/K8s)
 
-Stack: Grafana, Loki, Promtail, MinIO, Prometheus, node-exporter, kube-state-metrics. Namespace: `logging`.
+[![Kubernetes](https://img.shields.io/badge/kubernetes-compatible-blue?logo=kubernetes)](https://kubernetes.io)
+[![Kustomize](https://img.shields.io/badge/kustomize-ready-blue?logo=kustomize)](https://kustomize.io)
+[![Grafana](https://img.shields.io/badge/grafana-monitoring-orange?logo=grafana)](https://grafana.com)
+[![Prometheus](https://img.shields.io/badge/prometheus-metrics-red?logo=prometheus)](https://prometheus.io)
+[![Loki](https://img.shields.io/badge/loki-logging-purple)](https://grafana.com/oss/loki/)
 
-## Cấu trúc thư mục
+A highly structured, **Kustomize**-ready observability stack for Kubernetes (K3s/K8s). It provides a complete monitoring and logging ecosystem tailored for production and home-lab deployments. This repository is sanitized and ready to act as a solid foundation for any Kubernetes log & monitoring stack.
 
-```
-log/
-├── README.md
-├── apply-all.sh            # Script apply toàn bộ (hoặc --recreate)
-├── base/
-│   ├── namespace.yaml      # Namespace logging
-│   ├── secret.yaml         # logging-secrets (Grafana, MinIO password)
-│   └── pvc-logging-storage.yaml   # PVC 7Gi cho Loki + MinIO
-├── minio/                   # Object storage (Loki backend)
-│   ├── deployment.yaml
-│   └── service.yaml
-├── loki/                    # Log aggregation
-│   ├── configmap.yaml
-│   ├── deployment.yaml 
-│   └── service.yaml
-├── promtail/                # Log collector (DaemonSet)
-│   ├── service-account.yaml
-│   ├── rbac.yaml
-│   ├── configmap.yaml
-│   └── daemon.yaml
-├── prometheus/              # Metrics
-│   ├── rbac.yaml
-│   ├── configmap.yaml
-│   ├── pvc.yaml
-│   ├── deployment.yaml
-│   └── service.yaml
-├── node-exporter/          # Node metrics (DaemonSet)
-│   ├── daemonset.yaml
-│   └── service.yaml
-├── kube-state-metrics/     # K8s object metrics
-│   ├── rbac.yaml
-│   ├── deployment.yaml
-│   └── service.yaml
-├── grafana/                 # UI (log + metrics)
-│   ├── pvc.yaml
-│   ├── deployment.yaml
-│   ├── service.yaml
-│   ├── datasource-prometheus.yaml
-│   ├── dashboards-provider.yaml
-│   ├── dashboards-configmap.yaml
-│   └── ingress.yaml
-├── mysql-exporter/          # MySQL server DB (192.168.5.40:3306)
-│   ├── secret.yaml
-│   ├── deployment.yaml
-│   └── service.yaml
-├── mssql-exporter/          # SQL Server (192.168.5.40:1433)
-│   ├── secret.yaml
-│   ├── deployment.yaml
-│   └── service.yaml
-├── redis-exporter/          # Redis (192.168.5.40:6379)
-│   ├── deployment.yaml
-│   └── service.yaml
-└── _lite/                   # Manifest light (Pod + Service, test)
-    ├── grafana-lite.yaml
-    └── minio-lite.yaml
+## ✨ Features
+
+- **Metrics Collection**: Prometheus, Node Exporter, Kube State Metrics.
+- **Log Aggregation**: Grafana Loki & Promtail (backed by MinIO object storage for scalability).
+- **Visualization**: Grafana with pre-configured dashboards and Prometheus/Loki datasources.
+- **Database Exporters**: Built-in configs for MySQL, MSSQL, and Redis monitoring.
+- **Infrastructure as Code**: Everything is structured using **Kustomize** for clean and modular deployments.
+
+---
+
+## 🏗 Architecture & Data Flow
+
+1. **Grafana** (UI) acts as the single pane of glass, querying data from Prometheus & Loki.
+2. **Prometheus** actively scrapes metrics from `node-exporter`, `kube-state-metrics`, and external database exporters.
+3. **Promtail** runs as an agent (DaemonSet) on every node to collect pod logs and ship them to **Loki**.
+4. **Loki** efficiently indexes logs and uses **MinIO** as an S3-compatible storage backend to securely store chunks out of the box.
+
+---
+
+## 🚀 Quick Start
+
+### 1. Configure Secrets & Access Points
+
+Before applying the manifests, you must configure your own secrets, passwords, and target IP addresses. 
+
+Update the following files with your credentials (make sure to replace the `<PLACEHOLDER>` strings):
+
+- `base/secret.yaml`: Set up your Grafana & MinIO admin passwords.
+- `grafana/ingress.yaml`: Update the routing with your domain name (replace `log.example.com`).
+- **DB Exporters** (`mysql-exporter`, `mssql-exporter`, `redis-exporter`): Update database target IP addresses and authentication passwords in their respective `secret.yaml` and `deployment.yaml` configurations.
+
+### 2. Deployment
+
+This repository natively supports **Kustomize**. You can deploy the entire stack with a single command from the root directory:
+
+```bash
+kubectl apply -k .
 ```
 
-**Lưu ý:** Các thư mục `loki/`, `minio/` ở root chứa manifest lite/alternate; có thể giữ để tham khảo hoặc xóa nếu không dùng.
-
-## Loki + MinIO (bắt buộc khi deploy)
-
-- **Mật khẩu:** Loki lấy MinIO password từ secret `logging-secrets` (key `MINIO_ROOT_PASSWORD`) qua env `MINIO_PASSWORD`; config dùng `${MINIO_PASSWORD}` (cần args `-config.expand-env=true` trong deployment — đã có trong manifest).
-- **Bucket:** Sau khi MinIO chạy, tạo bucket `loki` (console MinIO hoặc `mc mb myminio/loki`).
-- **DNS:** Loki (ruler, compactor) gọi host `loki.minio.logging.svc.cluster.local` — phải thêm rewrite trong CoreDNS để host này trỏ về MinIO. Chi tiết: **`loki/coredns-rewrite-minio.md`**.
-
-Lỗi thường gặp và cách kiểm tra: **`MANIFEST-CHECK.md`**.
-
-## Apply toàn bộ (tạo lại namespace)
-
-Có sẵn script apply theo đúng thứ tự (chạy từ thư mục `log/`):
-
+*Alternatively, use the provided helper script for a robust deployment process:*
 ```bash
 chmod +x apply-all.sh
 ./apply-all.sh
 ```
+*(Tip: Use `./apply-all.sh --recreate` to completely delete and securely recreate the `logging` namespace and all of its resources).*
 
-Để **xóa namespace `logging` rồi deploy lại từ đầu**:
+### 3. Post-Deployment Steps
 
-```bash
-./apply-all.sh --recreate
-```
+1. **Create S3 Bucket for Loki**: 
+   Access your MinIO UI via port-forwarding or ingress, login, and manually create a bucket named `loki`.
+2. **CoreDNS Rewrite mapping**: 
+   Loki needs to reach MinIO over the internal DNS literal `loki.minio.logging.svc.cluster.local`. Ensure you configure your `CoreDNS` configmap if a rewrite rule is necessary (refer to `loki/coredns-rewrite-minio.md` if available).
 
-Script dùng `base/namespace.yaml` để tạo namespace, rồi apply lần lượt base → minio → loki → promtail → prometheus → node-exporter → kube-state-metrics → grafana → DB exporters. Sau khi chạy, nhớ tạo bucket `loki` và cấu hình CoreDNS rewrite (xem `MANIFEST-CHECK.md`, `loki/coredns-rewrite-minio.md`).
+---
 
-## Thứ tự apply (khi apply tay, namespace `logging` đã có)
+## 📊 Access & Dashboards
 
-```bash
-# 1. Base (namespace + secret + PVC)
-kubectl apply -f base/
+- **Grafana UI**: Access your environment via your configured Ingress (e.g., `https://log.example.com`). 
+  - Login with username `admin` and the custom password you defined in `base/secret.yaml`.
+- Data Sources and Dashboards are automatically provisioned. Enjoy the defaults imported out-of-the-box (`grafana/dashboards-configmap.yaml`), or easily import popular ones from the [Grafana Dashboards](https://grafana.com/grafana/dashboards/) hub, such as:
+  - **1860**: Node Exporter Full
+  - **6417**: Kubernetes Compute Resources
+  - **14056**: Persistent Volumes
 
-# 2. Storage & logging
-kubectl apply -f minio/
-# Đợi MinIO Running, tạo bucket loki (xem MANIFEST-CHECK.md)
-# Cấu hình CoreDNS rewrite (xem loki/coredns-rewrite-minio.md)
-kubectl apply -f loki/
-kubectl apply -f promtail/
+---
 
-# 3. Monitoring
-kubectl apply -f prometheus/
-kubectl apply -f node-exporter/
-kubectl apply -f kube-state-metrics/
+## 🤝 Contributing
 
-# 4. Grafana + Ingress
-kubectl apply -f grafana/
-
-# 5. DB monitoring (server 192.168.5.40)
-kubectl apply -f mysql-exporter/
-kubectl apply -f mssql-exporter/
-kubectl apply -f redis-exporter/
-```
-
-**Trước khi apply DB exporters:** sửa password trong `mysql-exporter/secret.yaml` và `mssql-exporter/secret.yaml`, đồng thời mở firewall trên 192.168.5.40 cho cluster truy cập port 3306, 1433, 6379.
-
-Hoặc apply toàn bộ (nếu đã tạo namespace `logging`):
-
-```bash
-kubectl apply -f base/ -f minio/ -f loki/ -f promtail/ -f prometheus/ -f node-exporter/ -f kube-state-metrics/ -f grafana/
-```
-
-## Truy cập
-
-- **Grafana:** https://log.pirago.work (cấu hình DNS/Cloudflare trỏ tới Ingress).
-- Mật khẩu admin: lấy từ secret `logging-secrets`, key `GRAFANA_ADMIN_PASSWORD`.
-
-## Giám sát server DB (192.168.5.40)
-
-Exporters chạy trong cluster, kết nối ra MySQL (3306), SQL Server (1433), Redis (6379) trên server 192.168.5.40.
-
-- **Yêu cầu:** Trên 192.168.5.40 mở firewall cho IP các node K3s (hoặc toàn mạng cluster) vào port 3306, 1433, 6379.
-- **MySQL:** Sửa `mysql-exporter/secret.yaml` — thay `REPLACE_WITH_MYSQL_PASSWORD` bằng mật khẩu user `pirago`. Trên MySQL tạo user (nếu cần): `GRANT PROCESS, REPLICATION CLIENT, SELECT ON *.* TO 'pirago'@'%';`
-- **SQL Server:** Sửa `mssql-exporter/secret.yaml` — đặt `USERNAME` (vd. `sa`) và `PASSWORD` đúng.
-- **Redis:** Không auth mặc định; nếu có password thì thêm env `REDIS_PASSWORD` từ secret vào `redis-exporter/deployment.yaml`.
-- **Prometheus:** Đã thêm job scrape `mysql-dbaas`, `mssql-dbaas`, `redis-dbaas`. Sau khi apply exporters, apply lại `prometheus/configmap.yaml` và reload Prometheus (hoặc restart pod).
-- **Grafana:** Import dashboard MySQL (id 7362), SQL Server (tìm "SQL Server" trên Grafana.com), Redis (id 11835).
-
-## Dashboard
-
-Sau khi đăng nhập Grafana: màn hình mặc định là **Node Overview** (CPU, memory, disk theo node). Thêm dashboard từ Grafana.com: 1860 (Node Exporter Full), 6417 (Kubernetes Compute Resources), 14056 (Persistent Volumes).
+Contributions, issues and feature requests are welcome! Feel free to check [issues page](#). If you found this repository helpful, please consider giving it a ⭐️!

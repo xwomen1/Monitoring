@@ -1,0 +1,8 @@
+# Ignore specific secret files to prevent accidental commits
+secret.yaml
+*secret.yaml
+*.env
+
+# Operating system files
+.DS_Store
+Thumbs.db

@@ -7,10 +7,10 @@ spec:
   ingressClassName: traefik
   tls:
   - hosts:
-    - log.pirago.work
+    - log.example.com
     secretName: tls
   rules:
-    - host: log.pirago.work
+    - host: log.example.com
       http:
         paths:
           - path: /

@@ -17,7 +17,6 @@ spec:
     spec:
       containers:
         - name: mysql-exporter
-          # v0.14 dùng DATA_SOURCE_NAME; v0.15+ ưu tiên .my.cnf
           image: prom/mysqld-exporter:v0.14.0
           env:
             - name: DATA_SOURCE_NAME
