@@ -10,7 +10,7 @@ A highly structured, **Kustomize**-ready observability stack for Kubernetes (K3s
 
 <br>
 <p align="center">
-  <img src="assets/demo.png" alt="Grafana Dashboard Demo" width="100%">
+  <img src="assets/demo.jpg" alt="Grafana Dashboard Demo" width="100%">
 </p>
 <br>
 
